@@ -1,0 +1,53 @@
+CALL gds.graph.create(
+  'graphTriangle',
+  'Person',
+  {
+    KNOWS: {
+      orientation: 'UNDIRECTED'
+    }
+  }
+)
+
+Kode neo4j 1 – kode eksekusi dari pembuatan graphTriangle
+
+
+CALL gds.triangleCount.stream('graphTriangle') YIELD nodeId, triangleCount as triangles
+MATCH (p:Person)-[:CURRENT_ADDRESS]-(a:Location)-[:LOCATION_IN_AREA]-(c:Area)
+WHERE ID(p) = nodeId AND
+triangles > 0 AND c.areaCode CONTAINS "OL"
+RETURN p.name AS name, p.surname AS surname, p.nhs_no AS id, triangles
+ORDER BY triangles DESC
+
+Kode neo4j 2 – kode eksekusi dari algoritma triangle count
+
+
+CALL gds.triangleCount.write('graphTriangle', {
+  writeProperty: 'triangleCount'
+})
+
+Kode neo4j 3 – kode eksekusi dari penyimpanan graphTriangle
+
+
+CALL gds.graph.create(
+  'graphBetweenness',
+  'Person',
+  {
+    KNOWS: {
+      orientation: 'UNDIRECTED'
+    }
+  }
+)
+
+Kode neo4j 4 – kode eksekusi dari pembuatan graphBetweenness
+
+
+CALL gds.betweenness.stream('graphBetweenness') YIELD nodeId, score AS centrality MATCH (p:Person)-[:CURRENT_ADDRESS]-(a:Location)-[:LOCATION_IN_AREA]-(c:Area) WHERE ID(p) = nodeId AND c.areaCode CONTAINS "OL" RETURN p.name AS name, p.surname AS surname, p.nhs_no AS id, toInteger(centrality) AS score ORDER BY centrality DESC
+
+Kode neo4j 5 – kode eksekusi dari betweeness centrality
+
+
+CALL gds.betweenness.write('graphBetweenness', {
+  writeProperty: 'Betweenness'
+})
+
+Kode neo4j 6 – kode eksekusi dari penyimpanan graphBetweenness
